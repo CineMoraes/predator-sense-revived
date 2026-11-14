@@ -1,0 +1,16 @@
+bin/
+obj/
+.vs/
+*.user
+logs/
+*.csv
+*.log
+snapshots/
+release/
+
+# Local working notes and design files (not part of the public project)
+CLAUDE.md
+HANDOFF.md
+PROMPT PROXIMA SESSAO.md
+.claudeignore
+mockup/

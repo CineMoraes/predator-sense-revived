@@ -1,0 +1,28 @@
+name: Problem report
+description: Something does not work on a supported laptop
+title: "[Problem] "
+labels: ["problem"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a free hobby project. There is no promise of an answer or a fix, but reports help other owners.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you clicked, what you expected, and what the app showed (the message at the bottom of the window).
+    validations:
+      required: true
+  - type: textarea
+    id: support
+    attributes:
+      label: Support file
+      description: "In the app: System > SAVE SUPPORT FILE, then OPEN DATA FOLDER. Paste the content of support_....txt here. Read it first: it has no user name or PC name."
+      render: text
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: App version and Windows version

@@ -1,0 +1,76 @@
+﻿Instance: ACPI\PNP0C14\APGe_0 Active=True
+=== sample 1 21:42:35
+SysInfo in=0x1 -> 0x0 status=0 value=0
+SysInfo in=0x101 -> 0x4D00 status=0 value=77
+SysInfo in=0x201 -> 0x18D800 status=0 value=6360
+SysInfo in=0x301 -> 0x3000 status=0 value=48
+SysInfo in=0x401 -> 0x0 status=0 value=0
+SysInfo in=0x501 -> 0x0 status=0 value=0
+SysInfo in=0x601 -> 0x191400 status=0 value=6420
+SysInfo in=0x701 -> 0x0 status=0 value=0
+SysInfo in=0x801 -> 0x0 status=0 value=0
+SysInfo in=0x901 -> 0x0 status=0 value=0
+SysInfo in=0xA01 -> 0x3400 status=0 value=52
+SysInfo in=0xB01 -> 0x0 status=0 value=0
+SysInfo in=0xC01 -> 0x0 status=0 value=0
+SysInfo in=0xD01 -> 0x0 status=0 value=0
+SysInfo in=0xE01 -> 0x0 status=0 value=0
+SysInfo in=0xF01 -> 0x0 status=0 value=0
+SysInfo in=0x2 -> 0x10000000000 status=0 value=0
+SysInfo in=0x102 -> 0x10000000000 status=0 value=0
+SysInfo in=0x202 -> 0x10000000000 status=0 value=0
+SysInfo in=0x302 -> 0x10000000000 status=0 value=0
+SysInfo in=0x402 -> 0x10000000000 status=0 value=0
+SysInfo in=0x502 -> 0x10000000000 status=0 value=0
+SysInfo in=0x602 -> 0x10000000000 status=0 value=0
+SysInfo in=0x702 -> 0x10000000000 status=0 value=0
+SysInfo in=0x802 -> 0x10000000000 status=0 value=0
+SysInfo in=0x902 -> 0x10000000000 status=0 value=0
+SysInfo in=0xA02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xB02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xC02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xD02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xE02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xF02 -> 0x10000000000 status=0 value=0
+=== sample 2 21:42:38
+SysInfo in=0x1 -> 0x0 status=0 value=0
+SysInfo in=0x101 -> 0x4D00 status=0 value=77
+SysInfo in=0x201 -> 0x18D800 status=0 value=6360
+SysInfo in=0x301 -> 0x3000 status=0 value=48
+SysInfo in=0x401 -> 0x0 status=0 value=0
+SysInfo in=0x501 -> 0x0 status=0 value=0
+SysInfo in=0x601 -> 0x191400 status=0 value=6420
+SysInfo in=0x701 -> 0x0 status=0 value=0
+SysInfo in=0x801 -> 0x0 status=0 value=0
+SysInfo in=0x901 -> 0x0 status=0 value=0
+SysInfo in=0xA01 -> 0x3400 status=0 value=52
+SysInfo in=0xB01 -> 0x0 status=0 value=0
+SysInfo in=0xC01 -> 0x0 status=0 value=0
+SysInfo in=0xD01 -> 0x0 status=0 value=0
+SysInfo in=0xE01 -> 0x0 status=0 value=0
+SysInfo in=0xF01 -> 0x0 status=0 value=0
+SysInfo in=0x2 -> 0x10000000000 status=0 value=0
+SysInfo in=0x102 -> 0x10000000000 status=0 value=0
+SysInfo in=0x202 -> 0x10000000000 status=0 value=0
+SysInfo in=0x302 -> 0x10000000000 status=0 value=0
+SysInfo in=0x402 -> 0x10000000000 status=0 value=0
+SysInfo in=0x502 -> 0x10000000000 status=0 value=0
+SysInfo in=0x602 -> 0x10000000000 status=0 value=0
+SysInfo in=0x702 -> 0x10000000000 status=0 value=0
+SysInfo in=0x802 -> 0x10000000000 status=0 value=0
+SysInfo in=0x902 -> 0x10000000000 status=0 value=0
+SysInfo in=0xA02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xB02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xC02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xD02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xE02 -> 0x10000000000 status=0 value=0
+SysInfo in=0xF02 -> 0x10000000000 status=0 value=0
+FanBehavior in=0x0 -> 0x2
+FanBehavior in=0x1 -> 0x200
+FanBehavior in=0x8 -> 0x8000
+FanBehavior in=0x9 -> 0x8200
+FanSpeed in=0x1 -> 0x0
+FanSpeed in=0x4 -> 0x0
+FanSpeed in=0x8 -> 0x1
+Profile in=0x0 -> 0xFF000001000000
+Profile in=0x1 -> 0x2

@@ -1,0 +1,47 @@
+name: Model report
+description: Tell us if Predator Sense Revived works on your laptop
+title: "[Model] "
+labels: ["model-report"]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: Laptop model
+      description: As shown at the bottom of the Dashboard or on the System page (for example PH315-52).
+    validations:
+      required: true
+  - type: input
+    id: bios
+    attributes:
+      label: BIOS version and Windows version
+    validations:
+      required: true
+  - type: dropdown
+    id: keyboard
+    attributes:
+      label: Keyboard backlight
+      options:
+        - 4-zone RGB
+        - Single color
+        - Per-key RGB
+        - None / not sure
+    validations:
+      required: true
+  - type: textarea
+    id: report
+    attributes:
+      label: Support file
+      description: "In the app: System > SAVE SUPPORT FILE, then OPEN DATA FOLDER. Paste the content of support_....txt here. Read it first: it has no user name or PC name."
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: works
+    attributes:
+      label: What works, what does not
+      description: Only if you unlocked the controls. Say which features you tried.
+  - type: textarea
+    id: photo
+    attributes:
+      label: Keyboard photo (optional)
+      description: A straight top-down photo of your keyboard, if your layout is not in the app. Crop out your screen.

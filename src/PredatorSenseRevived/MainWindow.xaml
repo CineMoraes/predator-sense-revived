@@ -1,0 +1,542 @@
+<Window x:Class="PredatorSenseRevived.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:c="clr-namespace:PredatorSenseRevived.Controls"
+        xmlns:local="clr-namespace:PredatorSenseRevived"
+        Title="Predator Sense Revived" Icon="app.ico" Width="1300" Height="920" MinWidth="1120" MinHeight="720"
+        WindowStyle="None" ResizeMode="CanResize" Background="#07090E" WindowStartupLocation="CenterScreen"
+        FontFamily="{StaticResource BodyFont}" FontSize="14" Foreground="{StaticResource Text}"
+        UseLayoutRounding="True" TextOptions.TextFormattingMode="Display" PreviewMouseDown="Window_PreviewMouseDown" PreviewKeyDown="Window_PreviewKeyDown" PreviewKeyUp="Window_PreviewKeyUp">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0" ResizeBorderThickness="6" GlassFrameThickness="0" CornerRadius="0" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Window.Resources>
+        <!-- Big mode tab on the dashboard. Tag="on" = active. -->
+        <Style x:Key="Mode" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource Text}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="MinWidth" Value="170"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="root" Background="Transparent">
+                            <c:Plate x:Name="bg" Kind="Slant" Cut="14" Fill="Transparent"/>
+                            <ContentPresenter Margin="22,10,22,16" HorizontalAlignment="Center"/>
+                            <Rectangle x:Name="glow" Height="3" VerticalAlignment="Bottom" Margin="20,0" Opacity="0">
+                                <Rectangle.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#006FA0FF" Offset="0"/>
+                                        <GradientStop Color="#FF6FA0FF" Offset="0.5"/>
+                                        <GradientStop Color="#006FA0FF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Rectangle.Fill>
+                                <Rectangle.Effect><DropShadowEffect Color="#3B6CFF" BlurRadius="18" ShadowDepth="0" Opacity="1"/></Rectangle.Effect>
+                            </Rectangle>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="on">
+                                <Setter TargetName="glow" Property="Opacity" Value="1"/>
+                                <Setter TargetName="bg" Property="Fill">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#0A3B6CFF" Offset="0"/>
+                                            <GradientStop Color="#423B6CFF" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="root" Property="Opacity" Value="0.9"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="root" Property="Opacity" Value="0.45"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Fan mode card. Tag="on" = active. -->
+        <Style x:Key="FanCard" TargetType="Button">
+            <Setter Property="Foreground" Value="{StaticResource Soft}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="root" MinHeight="88" Background="Transparent">
+                            <c:Plate x:Name="bg" Kind="Chamfer" Cut="12" Fill="#99080B12" Stroke="{StaticResource GlassEdge}"/>
+                            <ContentPresenter Margin="20,14" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="Tag" Value="on">
+                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="bg" Property="Fill">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#6600AEC7" Offset="0"/>
+                                            <GradientStop Color="#803B6CFF" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="bg" Property="Stroke" Value="{StaticResource LightBlue}"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True"><Setter TargetName="root" Property="Opacity" Value="0.9"/></Trigger>
+                            <Trigger Property="IsEnabled" Value="False"><Setter TargetName="root" Property="Opacity" Value="0.45"/></Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="NavIcon" TargetType="Path">
+            <Setter Property="Width" Value="26"/>
+            <Setter Property="Height" Value="26"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+            <Setter Property="StrokeThickness" Value="1.7"/>
+            <Setter Property="StrokeLineJoin" Value="Miter"/>
+            <Setter Property="Stroke" Value="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"/>
+        </Style>
+
+        <DrawingBrush x:Key="Scales" TileMode="Tile" Viewport="0,0,41,41" ViewportUnits="Absolute" Viewbox="0,0,24,24" ViewboxUnits="Absolute" Stretch="None">
+            <DrawingBrush.Drawing>
+                <DrawingGroup>
+                    <GeometryDrawing Geometry="M0,0 Q0,14 12,16 Q24,14 24,0 M-12,12 Q-12,26 0,28 Q12,26 12,12 M12,12 Q12,26 24,28 Q36,26 36,12 M-12,-12 Q-12,2 0,4 Q12,2 12,-12 M12,-12 Q12,2 24,4 Q36,2 36,-12">
+                        <GeometryDrawing.Pen><Pen Brush="#7FA6FF" Thickness="0.7"/></GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                    <GeometryDrawing Geometry="M4,3 Q5,10 12,12">
+                        <GeometryDrawing.Pen><Pen Brush="#99B9CCFF" Thickness="0.5"/></GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingGroup>
+            </DrawingBrush.Drawing>
+        </DrawingBrush>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <RadialGradientBrush Center="0.55,0.32" GradientOrigin="0.55,0.32" RadiusX="0.75" RadiusY="0.85">
+                <GradientStop Color="#18213A" Offset="0"/>
+                <GradientStop Color="#0D121D" Offset="0.55"/>
+                <GradientStop Color="#07090E" Offset="1"/>
+            </RadialGradientBrush>
+        </Grid.Background>
+
+        <!-- Faded dragon scales -->
+        <Rectangle x:Name="ScalesLayer" Opacity="0.4" IsHitTestVisible="False">
+            <Rectangle.OpacityMask>
+                <RadialGradientBrush Center="0.68,0.28" GradientOrigin="0.68,0.28" RadiusX="0.75" RadiusY="0.75">
+                    <GradientStop Color="#FFFFFFFF" Offset="0"/>
+                    <GradientStop Color="#59FFFFFF" Offset="0.55"/>
+                    <GradientStop Color="#00FFFFFF" Offset="1"/>
+                </RadialGradientBrush>
+            </Rectangle.OpacityMask>
+        </Rectangle>
+
+        <!-- Depth: dark vignette at the edges, darker fade at the bottom, soft light from the top -->
+        <Rectangle IsHitTestVisible="False">
+            <Rectangle.Fill>
+                <RadialGradientBrush Center="0.55,0.38" GradientOrigin="0.55,0.38" RadiusX="0.78" RadiusY="0.9">
+                    <GradientStop Color="#00000000" Offset="0"/>
+                    <GradientStop Color="#26000000" Offset="0.55"/>
+                    <GradientStop Color="#B3000000" Offset="1"/>
+                </RadialGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle IsHitTestVisible="False" Height="220" VerticalAlignment="Bottom">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#00000000" Offset="0"/>
+                    <GradientStop Color="#A6020306" Offset="1"/>
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Ellipse IsHitTestVisible="False" Width="1100" Height="420" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="200,-260,0,0">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#2E3B6CFF" Offset="0"/>
+                    <GradientStop Color="#003B6CFF" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="88"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left menu -->
+            <Border Background="#C805070B" BorderBrush="#336FA0FF" BorderThickness="0,0,1,0" MouseLeftButtonDown="Drag">
+                <Border.Effect><DropShadowEffect Color="Black" BlurRadius="34" ShadowDepth="0" Opacity="0.85"/></Border.Effect>
+                <StackPanel Margin="0,22,0,0">
+                    <Path Data="M17,2 L31,9 L31,21 L17,32 L3,21 L3,9 Z M10,13 L17,19 L24,13 M17,19 L17,26" Stroke="{StaticResource Accent}" StrokeThickness="2.2" Width="42" Height="42" Stretch="Uniform" Margin="0,0,0,26"/>
+                    <RadioButton x:Name="NavDash" Style="{StaticResource Nav}" GroupName="nav" IsChecked="True" Checked="NavChanged" ToolTip="Dashboard">
+                        <Path Style="{StaticResource NavIcon}" Data="M4,17 L8,9 L12,13 L16,6 L20,17 M3,20 H21"/>
+                    </RadioButton>
+                    <RadioButton x:Name="NavFans" Style="{StaticResource Nav}" GroupName="nav" Checked="NavChanged" ToolTip="Fans">
+                        <Path Style="{StaticResource NavIcon}" Data="M12,9 L15,12 L12,15 L9,12 Z M12,9 L14,3 M15,12 L21,14 M12,15 L10,21 M9,12 L3,10"/>
+                    </RadioButton>
+                    <RadioButton x:Name="NavPerf" Style="{StaticResource Nav}" GroupName="nav" Checked="NavChanged" ToolTip="Performance">
+                        <Path Style="{StaticResource NavIcon}" Data="M13,2 L4,14 H11 L10,22 L20,9 H13 Z"/>
+                    </RadioButton>
+                    <RadioButton x:Name="NavLight" Style="{StaticResource Nav}" GroupName="nav" Checked="NavChanged" ToolTip="Lighting">
+                        <Path Style="{StaticResource NavIcon}" Data="M2,7 H22 V17 H2 Z M5,10 H7 M9,10 H11 M13,10 H15 M17,10 H19 M7,14 H17"/>
+                    </RadioButton>
+                    <RadioButton x:Name="NavSys" Style="{StaticResource Nav}" GroupName="nav" Checked="NavChanged" ToolTip="System">
+                        <Path Style="{StaticResource NavIcon}" Data="M12,2 L20,7 V17 L12,22 L4,17 V7 Z M12,9 L15,12 L12,15 L9,12 Z"/>
+                    </RadioButton>
+                </StackPanel>
+            </Border>
+
+            <Grid Grid.Column="1" Margin="34,18,24,16">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Header -->
+                <Grid Background="Transparent" MouseLeftButtonDown="Drag">
+                    <StackPanel>
+                        <TextBlock Text="PREDATOR SENSE // REVIVED" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="21" Foreground="{StaticResource Accent}"/>
+                        <TextBlock x:Name="PageSub" Text="Live temperatures, fans and modes" Foreground="{StaticResource Muted}" Margin="0,3,0,0"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Path Data="M5,0 L10,5 L5,10 L0,5 Z" x:Name="StatusDot" Fill="{StaticResource Green}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBlock x:Name="StatusText" Text="Connecting…" Foreground="{StaticResource Muted}" FontSize="13" VerticalAlignment="Center" Margin="0,0,16,0"/>
+                        <Grid Margin="0,0,10,0">
+                            <c:Plate Kind="Chamfer" Cut="8" Fill="#8C101624" Stroke="#386FA0FF"/>
+                            <StackPanel Orientation="Horizontal" Margin="10,5,12,5">
+                                <CheckBox x:Name="LogCsv" Style="{StaticResource Toggle}" IsChecked="True" ToolTip="Log sensors to CSV every 2 s"/>
+                                <TextBlock Text="LOG CSV" FontSize="12" Foreground="{StaticResource Soft}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                            </StackPanel>
+                        </Grid>
+                        <Button Style="{StaticResource Bare}" Width="40" Height="34" Click="Minimize" ToolTip="Minimize">
+                            <Path Data="M2,8 H14" Stroke="{StaticResource Soft}" StrokeThickness="1.6"/>
+                        </Button>
+                        <Button Style="{StaticResource Bare}" Width="40" Height="34" Click="CloseApp" ToolTip="Close">
+                            <Path Data="M3,3 L13,13 M13,3 L3,13" Stroke="{StaticResource Soft}" StrokeThickness="1.6"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+                <Grid Grid.Row="1" Height="12" Margin="0,10,0,8">
+                    <Path Data="M0,1 L560,1 L572,9 L2000,9" StrokeThickness="1.2" Stretch="None">
+                        <Path.Effect><DropShadowEffect Color="#3B6CFF" BlurRadius="10" ShadowDepth="0" Opacity="0.9"/></Path.Effect>
+                        <Path.Stroke>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#00AEC7" Offset="0"/>
+                                <GradientStop Color="#3B6CFF" Offset="0.3"/>
+                                <GradientStop Color="#003B6CFF" Offset="0.6"/>
+                            </LinearGradientBrush>
+                        </Path.Stroke>
+                    </Path>
+                    <Rectangle Fill="{StaticResource Cyan}" Width="120" Height="3" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,4,0,0">
+                        <Rectangle.Effect><DropShadowEffect Color="#00AEC7" BlurRadius="12" ShadowDepth="0" Opacity="1"/></Rectangle.Effect>
+                    </Rectangle>
+                </Grid>
+
+                <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Focusable="False">
+                    <Grid Margin="0,0,10,0">
+
+                        <!-- DASHBOARD -->
+                        <StackPanel x:Name="PageDash">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="280"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Ellipse Grid.Column="0" Width="460" Height="460" IsHitTestVisible="False">
+                                    <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#403B6CFF" Offset="0"/><GradientStop Color="#1A00AEC7" Offset="0.45"/><GradientStop Color="#0000AEC7" Offset="1"/></RadialGradientBrush></Ellipse.Fill>
+                                </Ellipse>
+                                <Ellipse Grid.Column="2" Width="460" Height="460" IsHitTestVisible="False">
+                                    <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#403B6CFF" Offset="0"/><GradientStop Color="#1A00AEC7" Offset="0.45"/><GradientStop Color="#0000AEC7" Offset="1"/></RadialGradientBrush></Ellipse.Fill>
+                                </Ellipse>
+                                <Ellipse Grid.Column="1" Width="320" Height="320" VerticalAlignment="Top" Margin="0,-10,0,0" IsHitTestVisible="False">
+                                    <Ellipse.Fill><RadialGradientBrush><GradientStop Color="#3300AEC7" Offset="0"/><GradientStop Color="#0000AEC7" Offset="1"/></RadialGradientBrush></Ellipse.Fill>
+                                </Ellipse>
+                                <c:Gauge x:Name="CpuGauge" Title="CPU" FanLabel="CPU FAN" Height="420">
+                                    <c:Gauge.Effect><DropShadowEffect Color="#3B6CFF" BlurRadius="26" ShadowDepth="0" Opacity="0.45"/></c:Gauge.Effect>
+                                </c:Gauge>
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                    <Grid x:Name="TurboHex" Width="152" Height="132" Cursor="Hand" Background="Transparent" ToolTip="Turbo on/off (tested 13-11)" MouseLeftButtonUp="TurboToggle_Click">
+                                        <Grid.Effect><DropShadowEffect x:Name="TurboGlow" Color="#3B6CFF" BlurRadius="24" ShadowDepth="0" Opacity="0.8"/></Grid.Effect>
+                                        <c:Plate x:Name="TurboEdge" Kind="Hex" Fill="{StaticResource Accent}"/>
+                                        <c:Plate x:Name="TurboFace" Kind="Hex" Margin="3">
+                                            <c:Plate.Fill>
+                                                <RadialGradientBrush Center="0.5,0.4" GradientOrigin="0.5,0.4">
+                                                    <GradientStop Color="#EB2B4FB8" Offset="0"/>
+                                                    <GradientStop Color="#EB101A38" Offset="1"/>
+                                                </RadialGradientBrush>
+                                            </c:Plate.Fill>
+                                        </c:Plate>
+                                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                            <TextBlock Text="TURBO" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="22" HorizontalAlignment="Center"/>
+                                            <TextBlock x:Name="TurboState" Text="--" FontFamily="{StaticResource Display}" FontSize="13" HorizontalAlignment="Center" Foreground="{StaticResource Soft}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <c:HalfGauge x:Name="SysGauge" Width="260" Height="160" Margin="0,22,0,6"/>
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                        <TextBlock Text="SYSTEM " Foreground="{StaticResource Muted}" FontSize="12"/>
+                                        <TextBlock x:Name="SysText" Text="--" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="13"/>
+                                        <TextBlock Text="      GPU OC " Foreground="{StaticResource Muted}" FontSize="12"/>
+                                        <TextBlock x:Name="GpuOcText" Text="--" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="13"/>
+                                    </StackPanel>
+                                </StackPanel>
+                                <c:Gauge x:Name="GpuGauge" Grid.Column="2" Title="GPU" FanLabel="GPU FAN" Height="420">
+                                    <c:Gauge.Effect><DropShadowEffect Color="#3B6CFF" BlurRadius="26" ShadowDepth="0" Opacity="0.45"/></c:Gauge.Effect>
+                                </c:Gauge>
+                            </Grid>
+
+                            <Border BorderBrush="#246FA0FF" BorderThickness="0,0,0,1" Margin="0,8,0,0">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <Button x:Name="ModeAuto" Style="{StaticResource Mode}" Click="ModeAuto_Click">
+                                        <StackPanel><TextBlock x:Name="ModeAutoT" Text="AUTO" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="22" HorizontalAlignment="Center"/><TextBlock Text="Firmware fan curve" FontSize="11" Foreground="{StaticResource Muted}" HorizontalAlignment="Center"/></StackPanel>
+                                    </Button>
+                                    <Button x:Name="ModeMax" Style="{StaticResource Mode}" Click="ModeMax_Click">
+                                        <StackPanel><TextBlock x:Name="ModeMaxT" Text="MAX" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="22" HorizontalAlignment="Center"/><TextBlock Text="All fans 100 %" FontSize="11" Foreground="{StaticResource Muted}" HorizontalAlignment="Center"/></StackPanel>
+                                    </Button>
+                                    <Button x:Name="ModeTurbo" Style="{StaticResource Mode}" Click="ModeTurbo_Click">
+                                        <StackPanel><TextBlock x:Name="ModeTurboT" Text="TURBO" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="22" HorizontalAlignment="Center"/><TextBlock Text="Max fans + GPU OC" FontSize="11" Foreground="{StaticResource Muted}" HorizontalAlignment="Center"/></StackPanel>
+                                    </Button>
+                                    <Button x:Name="ModeCustom" Style="{StaticResource Mode}" Click="ModeCustom_Click">
+                                        <StackPanel><TextBlock x:Name="ModeCustomT" Text="CUSTOM" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="22" HorizontalAlignment="Center"/><TextBlock Text="Your fan speed" FontSize="11" Foreground="{StaticResource Muted}" HorizontalAlignment="Center"/></StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Border>
+
+                            <ContentControl Style="{StaticResource Card}" Margin="0,18,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="LAST 5 MIN" Style="{StaticResource H2}" Margin="0,0,0,6"/>
+                                    <c:LineChart x:Name="History" Height="190"/>
+                                </StackPanel>
+                            </ContentControl>
+                            <Grid Margin="0,16,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock x:Name="ModelText" Text="PREDATOR HELIOS 300 · PH315-52" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                                    <Button Style="{StaticResource SlantButton}" Content="HARDWARE DETAILS" Margin="16,0,0,0" Click="GoSystem"/>
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Style="{StaticResource Bare}" Padding="10,6" Click="GoLighting">
+                                        <StackPanel Orientation="Horizontal"><Path Data="M2,7 H22 V17 H2 Z M6,11 H7 M10,11 H11 M14,11 H15 M18,11 H19 M7,14 H17" Stroke="{StaticResource Soft}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/><TextBlock Text="LIGHTING" FontSize="12"/></StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource Bare}" Padding="10,6" Click="GoSystem">
+                                        <StackPanel Orientation="Horizontal"><Path Data="M12,2 L20,7 V17 L12,22 L4,17 V7 Z M12,9 L15,12 L12,15 L9,12 Z" Stroke="{StaticResource Soft}" StrokeThickness="1.5" Width="18" Height="18" Stretch="Uniform" Margin="0,0,8,0"/><TextBlock Text="SYSTEM" FontSize="12"/></StackPanel>
+                                    </Button>
+                                </StackPanel>
+                            </Grid>
+                        </StackPanel>
+
+                        <!-- FANS -->
+                        <StackPanel x:Name="PageFans" Visibility="Collapsed">
+                            <TextBlock Text="FANS" Style="{StaticResource H1}"/>
+                            <ContentControl Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,14">
+                                        <TextBlock Text="FAN MODE" Style="{StaticResource H2}"/>
+                                        <TextBlock Text="Auto and Max tested on this laptop" Style="{StaticResource Badge}" Foreground="{StaticResource Green}" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <UniformGrid Columns="3">
+                                        <Button x:Name="FanCardAuto" Style="{StaticResource FanCard}" Click="FanAuto_Click">
+                                            <StackPanel><TextBlock Text="Auto" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="24"/><TextBlock Text="Firmware curve, quiet" FontSize="12" Foreground="{StaticResource Sub}"/></StackPanel>
+                                        </Button>
+                                        <Button x:Name="FanCardMax" Style="{StaticResource FanCard}" Click="FanMax_Click">
+                                            <StackPanel><TextBlock Text="Max" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="24"/><TextBlock Text="All fans 100 %" FontSize="12" Foreground="{StaticResource Sub}"/></StackPanel>
+                                        </Button>
+                                        <Button x:Name="FanCardCustom" Style="{StaticResource FanCard}" Margin="0" Click="ModeCustom_Click">
+                                            <StackPanel><TextBlock Text="Custom" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="24"/><TextBlock Text="Your speed per fan" FontSize="12" Foreground="{StaticResource Sub}"/></StackPanel>
+                                        </Button>
+                                    </UniformGrid>
+                                </StackPanel>
+                            </ContentControl>
+                            <ContentControl Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,14">
+                                        <TextBlock Text="CUSTOM SPEED" Style="{StaticResource H2}"/>
+                                        <TextBlock Text="Tested 13-11 · values are firmware %" Style="{StaticResource Badge}" Foreground="{StaticResource Green}" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <UniformGrid Columns="2">
+                                        <StackPanel Margin="0,0,20,0"><Grid><TextBlock Text="CPU fan"/><TextBlock x:Name="CpuPctText" Text="60 %" HorizontalAlignment="Right" FontFamily="{StaticResource Display}" FontWeight="Bold"/></Grid><Slider x:Name="CpuSlider" Minimum="20" Maximum="100" Value="60" SmallChange="5" LargeChange="10" IsSnapToTickEnabled="True" TickFrequency="5" Margin="0,8,0,0" ValueChanged="FanSlider_Changed"/></StackPanel>
+                                        <StackPanel><Grid><TextBlock Text="GPU fan"/><TextBlock x:Name="GpuPctText" Text="60 %" HorizontalAlignment="Right" FontFamily="{StaticResource Display}" FontWeight="Bold"/></Grid><Slider x:Name="GpuSlider" Minimum="20" Maximum="100" Value="60" SmallChange="5" LargeChange="10" IsSnapToTickEnabled="True" TickFrequency="5" Margin="0,8,0,0" ValueChanged="FanSlider_Changed"/></StackPanel>
+                                    </UniformGrid>
+                                    <TextBlock Style="{StaticResource Desc}" Margin="0,12,0,0" Text="Measured on this laptop: 40 % = ~3,400 RPM, 60 % = ~4,200 RPM, 80 % = ~5,400 RPM. Minimum 20 % (0 % stops the fan)."/>
+                                    <Button Style="{StaticResource PrimaryButton}" Content="APPLY CUSTOM SPEED" HorizontalAlignment="Left" Margin="0,12,0,0" Click="ApplyCustom_Click"/>
+                                </StackPanel>
+                            </ContentControl>
+                            <ContentControl Style="{StaticResource Card}">
+                                <Grid>
+                                    <StackPanel><TextBlock Text="Fail-safe" Style="{StaticResource Title}"/><TextBlock Text="If the app closes or crashes while fans are on Custom, they go back to Auto." Style="{StaticResource Desc}"/></StackPanel>
+                                    <CheckBox x:Name="FailSafe" Style="{StaticResource Toggle}" IsChecked="True" HorizontalAlignment="Right" local:Lock.Reason="Fail-safe is always on: when the app closes with fans on Custom, it sets them to Auto."/>
+                                </Grid>
+                            </ContentControl>
+                        </StackPanel>
+
+                        <!-- PERFORMANCE -->
+                        <StackPanel x:Name="PagePerf" Visibility="Collapsed">
+                            <TextBlock Text="PERFORMANCE" Style="{StaticResource H1}"/>
+                            <ContentControl Style="{StaticResource Card}">
+                                <Grid>
+                                    <StackPanel Margin="0,0,80,0">
+                                        <TextBlock Text="Turbo mode" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="22"/>
+                                        <TextBlock x:Name="PerfTurboDesc" Style="{StaticResource Desc}" Text="Fans Max and GPU overclock Turbo, like the Turbo key."/>
+                                    </StackPanel>
+                                    <CheckBox x:Name="PerfTurbo" Style="{StaticResource Toggle}" HorizontalAlignment="Right" ToolTip="Turbo on/off (tested 13-11)" Click="PerfTurbo_Click"/>
+                                </Grid>
+                            </ContentControl>
+                            <ContentControl Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,14">
+                                        <TextBlock Text="GPU OVERCLOCK" Style="{StaticResource H2}"/>
+                                        <TextBlock Text="Tested 13-11" Style="{StaticResource Badge}" Foreground="{StaticResource Green}" HorizontalAlignment="Right"/>
+                                    </Grid>
+                                    <WrapPanel>
+                                        <RadioButton x:Name="OcNormal" Style="{StaticResource Seg}" GroupName="oc" Content="NORMAL" Click="Oc_Click" Tag="0"/>
+                                        <RadioButton x:Name="OcFaster" Style="{StaticResource Seg}" GroupName="oc" Content="FASTER" Click="Oc_Click" Tag="1"/>
+                                        <RadioButton x:Name="OcTurbo" Style="{StaticResource Seg}" GroupName="oc" Content="TURBO" Click="Oc_Click" Tag="2" ToolTip="GPU Turbo level = Turbo mode"/>
+                                    </WrapPanel>
+                                    <TextBlock Style="{StaticResource Desc}" Text="Faster and Turbo add heat. For a server and a game on this laptop, Normal is the safe start."/>
+                                </StackPanel>
+                            </ContentControl>
+                            <ContentControl Style="{StaticResource Card}">
+                                <Grid>
+                                    <StackPanel><TextBlock Text="CoolBoost" Style="{StaticResource Title}"/><TextBlock Text="Higher fan curve while on Auto. Tested 13-11." Style="{StaticResource Desc}"/></StackPanel>
+                                    <CheckBox x:Name="CoolBoost" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Click="CoolBoost_Click"/>
+                                </Grid>
+                            </ContentControl>
+                            <Border BorderBrush="{StaticResource Line}" BorderThickness="3,0,0,0" Padding="16,10">
+                                <TextBlock Style="{StaticResource Desc}" FontSize="13" Text="Quiet / Balanced / Performance profiles and CPU overclock do not exist in this laptop's firmware."/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- LIGHTING -->
+                        <StackPanel x:Name="PageLight" Visibility="Collapsed">
+                            <TextBlock Text="LIGHTING" Style="{StaticResource H1}"/>
+                            <Grid Margin="0,0,0,14">
+                                <c:Plate Kind="ChamferTop" Cut="30" Stroke="#3A6FA0FF" AccentA="{StaticResource Blue}" AccentB="{StaticResource Cyan}">
+                                    <c:Plate.Fill>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#11151E" Offset="0"/><GradientStop Color="#090B10" Offset="1"/></LinearGradientBrush>
+                                    </c:Plate.Fill>
+                                </c:Plate>
+                                <StackPanel Margin="30,16,30,22">
+                                    <Grid Margin="0,0,0,12">
+                                        <StackPanel HorizontalAlignment="Left">
+                                            <TextBlock Text="TURBO" FontFamily="{StaticResource Display}" FontWeight="Bold" FontStyle="Oblique" FontSize="11" Foreground="{StaticResource Sub}" HorizontalAlignment="Center"/>
+                                            <Border x:Name="TurboSlot" Cursor="Hand" ToolTip="Turbo on/off" MouseLeftButtonUp="TurboToggle_Click" Width="72" Height="14" CornerRadius="3" BorderBrush="#3A4560" BorderThickness="1" Margin="0,4,0,0" Background="#151A24"/>
+                                        </StackPanel>
+                                        <TextBlock Text="Colors and effects are written to the keyboard" Style="{StaticResource Badge}" HorizontalAlignment="Center"/>
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                                            <TextBlock Text="4-ZONE RGB · LAYOUT" FontFamily="{StaticResource Display}" FontWeight="Bold" FontSize="12" Foreground="{StaticResource Dim}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                            <RadioButton x:Name="LayoutAbnt2" Style="{StaticResource Seg}" GroupName="kblayout" Content="ABNT2" Tag="abnt2" Margin="0,0,6,0" Click="Layout_Click"/>
+                                            <RadioButton x:Name="LayoutUs" Style="{StaticResource Seg}" GroupName="kblayout" Content="US" Tag="us" Margin="0" Click="Layout_Click"/>
+                                        </StackPanel>
+                                    </Grid>
+                                    <Border Padding="10" CornerRadius="2" BorderBrush="#1A6FA0FF" BorderThickness="0,0,0,1">
+                                        <Border.Background><LinearGradientBrush StartPoint="0,0" EndPoint="0,1"><GradientStop Color="#000000" Offset="0"/><GradientStop Color="#040507" Offset="0.12"/><GradientStop Color="#0A0E16" Offset="1"/></LinearGradientBrush></Border.Background>
+                                        <c:KeyboardView x:Name="Keyboard"/>
+                                    </Border>
+                                    <Grid Margin="10,10,10,0" Height="4">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="40*"/><ColumnDefinition Width="40*"/><ColumnDefinition Width="40*"/><ColumnDefinition Width="2*"/><ColumnDefinition Width="28*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Rectangle x:Name="Bar0" Margin="3,0"/>
+                                        <Rectangle x:Name="Bar1" Grid.Column="1" Margin="3,0"/>
+                                        <Rectangle x:Name="Bar2" Grid.Column="2" Margin="3,0"/>
+                                        <Rectangle x:Name="Bar3" Grid.Column="4" Margin="3,0"/>
+                                    </Grid>
+                                </StackPanel>
+                            </Grid>
+                            <UniformGrid Columns="2">
+                                <ContentControl Style="{StaticResource Card}" Margin="0,0,14,14">
+                                    <StackPanel>
+                                        <TextBlock x:Name="ZoneTitle" Text="ZONE 1 COLOR" Style="{StaticResource H2}" Margin="0,0,0,14"/>
+                                        <WrapPanel x:Name="ZoneChips" Margin="0,0,0,8"/>
+                                        <WrapPanel x:Name="Swatches"/>
+                                    </StackPanel>
+                                </ContentControl>
+                                <ContentControl Style="{StaticResource Card}">
+                                    <StackPanel>
+                                        <Grid Margin="0,0,0,14">
+                                            <TextBlock Text="EFFECT" Style="{StaticResource H2}"/>
+                                            <TextBlock Text="Tested 13-11" Style="{StaticResource Badge}" Foreground="{StaticResource Green}" HorizontalAlignment="Right"/>
+                                        </Grid>
+                                        <WrapPanel x:Name="Effects">
+                                            <RadioButton Style="{StaticResource Seg}" GroupName="fx" Content="STATIC" IsChecked="True" Tag="0" Click="Effect_Click"/>
+                                            <RadioButton Style="{StaticResource Seg}" GroupName="fx" Content="BREATHING" Tag="1" Click="Effect_Click"/>
+                                            <RadioButton Style="{StaticResource Seg}" GroupName="fx" Content="NEON" Tag="2" Click="Effect_Click"/>
+                                            <RadioButton Style="{StaticResource Seg}" GroupName="fx" Content="WAVE" Tag="3" Click="Effect_Click"/>
+                                            <RadioButton Style="{StaticResource Seg}" GroupName="fx" Content="SHIFTING" Tag="4" Click="Effect_Click"/>
+                                            <RadioButton Style="{StaticResource Seg}" GroupName="fx" Content="ZOOM" Tag="5" Click="Effect_Click"/>
+                                        </WrapPanel>
+                                        <Grid Margin="0,8,0,0"><TextBlock Text="Brightness (applied when you release the slider)"/><TextBlock x:Name="BrightText" Text="100 %" HorizontalAlignment="Right" FontFamily="{StaticResource Display}" FontWeight="Bold"/></Grid>
+                                        <Slider x:Name="Brightness" Minimum="0" Maximum="100" Value="100" Margin="0,8,0,0" ValueChanged="BrightnessChanged" Thumb.DragCompleted="Brightness_DragCompleted"/>
+                                    </StackPanel>
+                                </ContentControl>
+                            </UniformGrid>
+                        </StackPanel>
+
+                        <!-- SYSTEM -->
+                        <StackPanel x:Name="PageSys" Visibility="Collapsed">
+                            <TextBlock Text="SYSTEM" Style="{StaticResource H1}"/>
+                            <ContentControl Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <Grid Margin="0,0,0,12">
+                                        <StackPanel><TextBlock Text="Boot animation and sound" Style="{StaticResource Title}"/><TextBlock Text="Predator logo and sound at power on. Read from the laptop; switching is not tested yet." Style="{StaticResource Desc}"/></StackPanel>
+                                        <CheckBox x:Name="SysBoot" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Click="SysBoot_Click"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,12">
+                                        <StackPanel><TextBlock Text="Windows key" Style="{StaticResource Title}"/><TextBlock Text="Off = Win key locked for games. Read from the laptop; switching is not tested yet." Style="{StaticResource Desc}"/></StackPanel>
+                                        <CheckBox x:Name="SysWin" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Click="SysWin_Click"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,12">
+                                        <StackPanel><TextBlock Text="USB charging when off" Style="{StaticResource Title}"/><TextBlock Text="USB ports stay powered while the laptop is off, until the battery reaches this level. Tested 13-11." Style="{StaticResource Desc}"/></StackPanel>
+                                        <WrapPanel x:Name="UsbSeg" HorizontalAlignment="Right">
+                                            <RadioButton Style="{StaticResource Seg}" GroupName="usb" Content="OFF" Tag="0" Click="Usb_Click"/><RadioButton Style="{StaticResource Seg}" GroupName="usb" Content="10 %" Tag="10" Click="Usb_Click"/><RadioButton Style="{StaticResource Seg}" GroupName="usb" Content="20 %" Tag="20" Click="Usb_Click"/><RadioButton Style="{StaticResource Seg}" GroupName="usb" Content="30 %" Tag="30" Click="Usb_Click"/>
+                                        </WrapPanel>
+                                    </Grid>
+                                    <Grid>
+                                        <StackPanel><TextBlock Text="Keyboard light off when idle" Style="{StaticResource Title}"/><TextBlock Text="This laptop supports only 30 s or never (firmware). Tested 14-11." Style="{StaticResource Desc}"/></StackPanel>
+                                        <WrapPanel x:Name="IdleSeg" HorizontalAlignment="Right">
+                                            <RadioButton Style="{StaticResource Seg}" GroupName="idle" Content="NEVER" Tag="0" Click="Idle_Click"/><RadioButton Style="{StaticResource Seg}" GroupName="idle" Content="AFTER 30 S" Tag="30" Click="Idle_Click"/>
+                                        </WrapPanel>
+                                    </Grid>
+                                </StackPanel>
+                            </ContentControl>
+                            <ContentControl Style="{StaticResource Card}">
+                                <StackPanel>
+                                    <TextBlock Text="SAFETY" Style="{StaticResource H2}" Margin="0,0,0,14"/>
+                                    <Grid x:Name="UntestedRow" Margin="0,0,0,14" Visibility="Collapsed">
+                                        <StackPanel Margin="0,0,80,0"><TextBlock Text="Unlock controls on this untested model" Style="{StaticResource Title}" Foreground="{StaticResource Amber}"/><TextBlock x:Name="UntestedText" Style="{StaticResource Desc}" Text=""/></StackPanel>
+                                        <CheckBox x:Name="UnlockModel" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Click="UnlockModel_Click"/>
+                                    </Grid>
+                                    <Grid Margin="0,0,0,14">
+                                        <StackPanel><TextBlock Text="Start with Windows" Style="{StaticResource Title}"/><TextBlock Text="Opens minimized at logon, as admin, without a UAC prompt (Task Scheduler task)." Style="{StaticResource Desc}"/></StackPanel>
+                                        <CheckBox x:Name="StartWithWindows" Style="{StaticResource Toggle}" HorizontalAlignment="Right" Click="StartWithWindows_Click"/>
+                                    </Grid>
+                                    <TextBlock Style="{StaticResource Desc}" Margin="0,0,0,12" Text="The app reads only, until you click. Before the first firmware change of each run it saves a snapshot of every value."/>
+                                    <WrapPanel>
+                                        <Button Style="{StaticResource PrimaryButton}" Content="SAVE FIRMWARE SNAPSHOT" Margin="0,0,10,0" Click="SaveSnapshot_Click"/>
+                                        <Button Style="{StaticResource SlantButton}" Content="RESTORE LAST SNAPSHOT" Opacity="0.55" local:Lock.Reason="Restore is not built yet." Margin="0,0,10,0"/>
+                                        <Button Style="{StaticResource SlantButton}" Content="OPEN DATA FOLDER" Margin="0,0,10,0" Click="OpenFolder_Click"/>
+                                        <Button Style="{StaticResource SlantButton}" Content="SAVE SUPPORT FILE" ToolTip="One text file with the app log and a read-only firmware report. It has no user name and no PC name." Click="Support_Click"/>
+                                    </WrapPanel>
+                                    <TextBlock x:Name="SysInfo" Style="{StaticResource Desc}" Margin="0,14,0,0"/>
+                                    <TextBlock Style="{StaticResource Desc}" Text="Free and open source (MIT): github.com/CineMoraes/predator-sense-revived · Made with Claude Code · Firmware codes: rusty-predator (MIT) · Not affiliated with Acer."/>
+                                </StackPanel>
+                            </ContentControl>
+                        </StackPanel>
+                    </Grid>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+        <!-- Toast: feedback for every click -->
+        <Border x:Name="Toast" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="88,0,0,26" Padding="0" IsHitTestVisible="False">
+            <Grid>
+                <c:Plate x:Name="ToastPlate" Kind="Chamfer" Cut="10" Fill="#F0121A2B" Stroke="{StaticResource LightBlue}" AccentA="{StaticResource Cyan}" AccentB="{StaticResource Blue}"/>
+                <StackPanel Orientation="Horizontal" Margin="20,12,24,12">
+                    <Path x:Name="ToastIcon" Data="M5,0 L10,5 L5,10 L0,5 Z" Fill="{StaticResource LightBlue}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                    <TextBlock x:Name="ToastText" Text="" FontSize="14" Foreground="{StaticResource Text}" VerticalAlignment="Center" MaxWidth="820" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
